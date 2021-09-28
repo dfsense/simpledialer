@@ -9,6 +9,6 @@ public class Main {
         phone1.registerNetwork();
         phone2.registerNetwork();
 
-        phone2.callOut(phone1);
+        phone1.callOut(phone2.getPhoneNumber());
     }
 }

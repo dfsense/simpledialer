@@ -1,5 +1,6 @@
 package ua.kovalev;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -7,15 +8,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class NetworkTest {
     Network network;
 
-    public NetworkTest() {
-        this.network = new Network();
+    @BeforeEach
+    void setUp(){
+        network = new Network();
     }
-
     @Test
     void throwErrorAddPhoneNumberExceptionIfInvalidFormatPhoneNumber(){
         // есть 13 символов но нет плюса в начале
         try{
-            network.addPhoneNumber("3805012345679");
+            network.addPhone(new Phone(network, "3805012345679"));
         }catch (ErrorAddPhoneNumberException ex){
             String expectedMessage = "Неудача во время регистрации номера телефона. Не верный формат номера";
             assertEquals(expectedMessage, ex.getMessage());
@@ -23,7 +24,7 @@ class NetworkTest {
 
         // в номере меньше 13 символов
         try{
-            network.addPhoneNumber("380501234567");
+            network.addPhone(new Phone(network, "380501234567"));
         }catch (ErrorAddPhoneNumberException ex){
             String expectedMessage = "Неудача во время регистрации номера телефона. Не верный формат номера";
             assertEquals(expectedMessage, ex.getMessage());
@@ -32,10 +33,9 @@ class NetworkTest {
 
     @Test
     void throwErrorAddPhoneNumberExceptionIfPhoneNumberAlreadyAtendedInNetwork(){
-        String phoneNumber = "+380503234354";
         try{
-            network.addPhoneNumber(phoneNumber);
-            network.addPhoneNumber(phoneNumber);
+            network.addPhone(new Phone(network, "+380503234354"));
+            network.addPhone(new Phone(network, "+380503234354"));
         }catch (ErrorAddPhoneNumberException ex){
             String expectedMessage = "Неудача во время регистрации номера телефона. Такой номер телефона в базе уже существует";
             assertEquals(expectedMessage, ex.getMessage());
@@ -44,43 +44,43 @@ class NetworkTest {
 
     @Test
     void testAddPhoneNumberSuccessfully(){
-        String phoneNumber = "+380503234354";
+        Phone phone = new Phone(network, "+380503234354");
         try{
-            assertTrue(network.addPhoneNumber(phoneNumber));
+            assertTrue(network.addPhone(phone));
         }catch (ErrorAddPhoneNumberException ex){
             System.out.println(ex.getMessage());
         }
-        assertTrue(network.isPhoneNumber(phoneNumber));
+        assertTrue(network.getPhone(phone.getPhoneNumber())!=null);
     }
 
     @Test
     void testIsPhoneNumber(){
-        String phoneNumber = "+380503234354";
-        assertFalse(network.isPhoneNumber(phoneNumber));
+        Phone phone = new Phone(network, "+380503234354");
+        assertFalse(network.getPhone(phone.getPhoneNumber())!=null);
         try{
-            network.addPhoneNumber(phoneNumber);
+            network.addPhone(phone);
         }catch (ErrorAddPhoneNumberException ex){
             System.out.println(ex.getMessage());
         }
-        assertTrue(network.isPhoneNumber(phoneNumber));
+        assertTrue(network.getPhone(phone.getPhoneNumber())!=null);
     }
 
     @Test
     void testIncreaseBaseArray(){
         assertEquals(10, network.getCapacityBase());
         try {
-            network.addPhoneNumber("+380503244567");
-            network.addPhoneNumber("+380503244568");
-            network.addPhoneNumber("+380503244569");
-            network.addPhoneNumber("+380503244561");
-            network.addPhoneNumber("+380503244562");
-            network.addPhoneNumber("+380503244563");
-            network.addPhoneNumber("+380503244564");
-            network.addPhoneNumber("+380503244565");
-            network.addPhoneNumber("+380503244566");
-            network.addPhoneNumber("+380503244551");
+            network.addPhone(new Phone(network, "+380503234354"));
+            network.addPhone(new Phone(network, "+380503234355"));
+            network.addPhone(new Phone(network, "+380503234356"));
+            network.addPhone(new Phone(network, "+380503234357"));
+            network.addPhone(new Phone(network, "+380503234358"));
+            network.addPhone(new Phone(network, "+380503234359"));
+            network.addPhone(new Phone(network, "+380503234350"));
+            network.addPhone(new Phone(network, "+380503234351"));
+            network.addPhone(new Phone(network, "+380503234352"));
+            network.addPhone(new Phone(network, "+380503234353"));
             assertEquals(10, network.getCapacityBase());
-            network.addPhoneNumber("+380503244552");
+            network.addPhone(new Phone(network, "+380503244561"));
             assertEquals(15, network.getCapacityBase());
         } catch (ErrorAddPhoneNumberException e) {
             System.out.println(e.getMessage());

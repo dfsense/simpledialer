@@ -3,38 +3,51 @@ package ua.kovalev;
 import java.util.Arrays;
 
 public class Network {
-    private String [] basePhoneNumbers;
+    private Phone [] basePhones;
     private int curIndex;
 
     public Network() {
-        this.basePhoneNumbers = new String[10];
+        this.basePhones = new Phone[10];
         this.curIndex = -1;
     }
 
-    public boolean addPhoneNumber(String phoneNumber) throws ErrorAddPhoneNumberException {
+    public boolean addPhone(Phone phone) throws ErrorAddPhoneNumberException {
 
-        checkFormatPhoneNumber(phoneNumber);
+        checkFormatPhoneNumber(phone.getPhoneNumber());
 
-        if(isPhoneNumber(phoneNumber))
+        if(getPhone(phone.getPhoneNumber())!=null)
             throw new ErrorAddPhoneNumberException("Неудача во время регистрации номера телефона. Такой номер телефона в базе уже существует");
 
-        if(this.curIndex == basePhoneNumbers.length-1){
+        if(this.curIndex == basePhones.length-1){
             increaseSizeArray();
         }
 
-        addPhone(phoneNumber);
+        basePhones[++curIndex] = phone;
 
-        System.out.printf("Номер телефона [%s] успешно был зарегистрирован в мобильной сети\n", phoneNumber);
+        System.out.printf("Номер телефона [%s] успешно был зарегистрирован в мобильной сети\n", phone.getPhoneNumber());
         return true;
     }
 
-    public boolean isPhoneNumber(String phoneNumber){
-        String findedPhoneNumber = Arrays.stream(basePhoneNumbers).filter(phone->phoneNumber.equals(phone)).findAny().orElse(null);
-        return (findedPhoneNumber==null) ? false : true;
+    public Phone getPhone(String phoneNumber){
+        Phone findedPhone = null;
+        for (int i = 0; i <= curIndex; i++) {
+            if(basePhones[i]==null){
+                break;
+            }
+            if (basePhones[i].getPhoneNumber().equals(phoneNumber)){
+                findedPhone = basePhones[i];
+                break;
+            }
+            if(i==curIndex){
+                break;
+            }
+        }
+//        Phone findedPhone = Arrays.stream(basePhones).filter(phone->phone.getPhoneNumber().equals(phoneNumber)).findAny().orElse(null);
+        return findedPhone;
     }
 
     public int getCapacityBase(){
-        return basePhoneNumbers.length;
+        return basePhones.length;
     }
 
     private void checkFormatPhoneNumber(String phoneNumber) throws ErrorAddPhoneNumberException{
@@ -43,11 +56,23 @@ public class Network {
     }
 
     private void increaseSizeArray(){
-        basePhoneNumbers = Arrays.copyOf(basePhoneNumbers, basePhoneNumbers.length+(basePhoneNumbers.length/2));
+        basePhones = Arrays.copyOf(basePhones, basePhones.length+(basePhones.length/2));
     }
 
-    private void addPhone(String phoneNumber){
-        basePhoneNumbers[++curIndex] = phoneNumber;
+
+    public boolean call(String phoneNumberSrc, String phoneNumberDest){
+        System.out.printf("Абонент [%s] вызывает абонента [%s]\n", phoneNumberSrc, phoneNumberDest);
+        if (getPhone(phoneNumberSrc)==null){
+            System.out.printf("Неудача, номер исходящего телефона не зарегистрирован в мобильной сети [%s]\nОтмена вызова", phoneNumberSrc);
+            return false;
+        }
+        Phone phoneDest = getPhone(phoneNumberDest);
+        if (phoneDest == null){
+            System.out.printf("Неудача, номер телефона вызываемого абонента не зарегистрирован в мобильной сети [%s]\nОтмена вызова", phoneNumberDest);
+            return false;
+        }
+        phoneDest.callIn(phoneNumberSrc);
+        return true;
     }
 
 
